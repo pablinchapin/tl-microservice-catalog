@@ -1,0 +1,17 @@
+## YAML Template.
+#---
+
+spring:
+    application:
+        name: catalog-service
+    cloud:
+        vault:
+            scheme: http
+            token: 00000000-0000-0000-0000-000000000000
+            host: 127.0.0.1
+            port: 8200
+            kv: 
+                enabled: true
+                # v0.10 of vault, comes with kv enabled. so this must needs to be set true
+    #profiles:
+     #active: mysql
