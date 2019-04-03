@@ -6,8 +6,8 @@
 package com.pablinchapin.tiendaliz.catalogo.service;
 
 import com.pablinchapin.tiendaliz.catalogo.entity.Category;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+//import javax.validation.constraints.Min;
+//import javax.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
@@ -20,8 +20,10 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public interface CategoryService {
     
-    @NotNull Page<Category> getAllCategories(Pageable pageable);
-    Category getCategory(@Min(value = 1L, message = "Invalid category ID.") Long id);
+    Page<Category> getAllCategories(Pageable pageable);
+    
+    //Category getCategory(@Min(value = 1L, message = "Invalid category ID.") Long id);
+    Category getCategory(Long id);
     
     Category save(Category category);
     

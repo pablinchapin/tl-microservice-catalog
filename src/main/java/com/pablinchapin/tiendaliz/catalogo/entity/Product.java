@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.Data;
 
 /**
@@ -23,7 +24,7 @@ import lombok.Data;
 @Table(name = "products")
 public class Product {
     
-     @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
@@ -55,4 +56,7 @@ public class Product {
     private String frontImageUrl;
     private String frontThumbImageUrl;
     
+    
+    @Transient
+    private boolean inStock = true;
 }
