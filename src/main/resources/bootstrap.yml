@@ -1,0 +1,13 @@
+## YAML Template.
+##---
+
+
+hystrix :
+    command :
+        getProductInventoryById :
+            execution:
+                isolation :
+                    thread :
+                        timeoutInMilliseconds : 2000
+            circuitBreaker:
+                errorThresholdPercentage : 60

@@ -9,16 +9,18 @@ import com.pablinchapin.tiendaliz.catalogo.entity.Product;
 import com.pablinchapin.tiendaliz.catalogo.exception.ResourceNotFoundException;
 import com.pablinchapin.tiendaliz.catalogo.model.ProductInventoryResponse;
 import com.pablinchapin.tiendaliz.catalogo.repository.ProductRepository;
+import com.pablinchapin.tiendaliz.catalogo.util.TlThreadLocalHolder;
 import java.util.Optional;
+import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+//import org.springframework.web.client.RestTemplate;
 
 /**
  *
@@ -31,12 +33,22 @@ import org.springframework.web.client.RestTemplate;
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
+    
+    private final ProductRepository productRepository;
+    private final InventoryServiceClient inventoryServiceClient;
+
+    
     @Autowired
-    private ProductRepository productRepository;
+    public ProductServiceImpl(ProductRepository productRepository, InventoryServiceClient inventoryServiceClient) {
+        this.productRepository = productRepository;
+        this.inventoryServiceClient = inventoryServiceClient;
+    }
     
-    
+        
+    /*
     @Autowired
     private RestTemplate restTemplate;
+    */
     
     @Override
     public Page<Product> getAllProductsByCategoryId(Pageable pageable, Long categoryId) {
@@ -50,8 +62,14 @@ public class ProductServiceImpl implements ProductService {
         
         if(product.isPresent()){
             
+            String correlationId = UUID.randomUUID().toString();
+            
+            TlThreadLocalHolder.setCorrelationId(correlationId);
+            
+            log.info("Before correlationId: "+TlThreadLocalHolder.getCorrelationId());
             log.info("Fetching inventory level for productId: "+id);
             
+            /*
             ResponseEntity<ProductInventoryResponse> 
                     productResponse = restTemplate
                                         .getForEntity(
@@ -67,7 +85,18 @@ public class ProductServiceImpl implements ProductService {
             }else{
                     log.error("Unable to get inventoty level for productId: "+id+ " StatusCode: "+productResponse.getStatusCode());
             }
+            */
             
+            Optional<ProductInventoryResponse> 
+                    productInventoryResponse = inventoryServiceClient.getProductInventoryById(id);
+            
+            if(productInventoryResponse.isPresent()){
+                Integer quantity = productInventoryResponse.get().getQuantity();
+                product.get().setInStock(quantity > 0);
+                log.info("Available quantity for productId: "+id+" / "+quantity);
+            }
+            
+            log.info("After correlationId: "+TlThreadLocalHolder.getCorrelationId());
         
         }
         
